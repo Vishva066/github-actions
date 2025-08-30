@@ -13,9 +13,31 @@ concurrency:
   cancel-in-progress: true
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+      fail-fast: false
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
       - name: Print msg
         run: echo "hi"
+  test:
+    needs: build
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        nodeVersion: [21, 22]
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.nodeVersion }}
+      - name: Run Tests
+        run: |
+          echo "Running tests on Node.js version ${{ matrix.nodeVersion }}"
+          node -v
